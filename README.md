@@ -64,6 +64,9 @@ AI 전문가들과 함께 의료인공지능에 도전하실 분들을 기다리
 - 주관: 건양대학교병원 헬스케어데이터사이언스센터, 국립암센터
 - 후원: 과학기술정보통신부,한국정보화진흥원,<strong>[Naver Clova NSML](https://ai.nsml.navercorp.com/intro)</strong>, ㈜인피니그루, 유비즈정보기술(주)
 
+## FAQ
+- 자주 문의하는 내용을 확인해 보세요! [FAQ](https://github.com/khd2019/khd2019/blob/master/FAQ_G.md)
+
 ## 문의
 issue 페이지에 문의글을 남기시면 담당자가 답변드립니다. <br>
 개인사항이 포함된 문의는 khd2019-nsml@navercorp.com 으로 메일주세요. 
