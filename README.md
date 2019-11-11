@@ -27,9 +27,7 @@ AI 전문가들과 함께 의료인공지능에 도전하실 분들을 기다리
       <strong>참가 신청</strong><br>
     </td>
     <td style="text-align:center"> 2019년 11월 8일~ 11월 20일(수) 23시 59분 59초</td>
-   <td>
-      [온라인](https://bit.ly/khd2019-nsml)<br>
-    </td>
+    <td> 온라인(https://bit.ly/khd2019-nsml) </td>
   </tr>
   <tr>
     <td>
