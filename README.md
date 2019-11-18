@@ -1,4 +1,4 @@
-![image](https://user-images.githubusercontent.com/6773678/68557263-a049d000-0478-11ea-9d9e-876689ed6b0b.png)
+![191117_Konyang Health Datatathon 2019_SNS_v1 2-01](https://user-images.githubusercontent.com/57554278/69030276-69486100-0a1a-11ea-90d8-d9eed2ac05c6.png)
 
 
 # Konyang Health Datathon 2019
