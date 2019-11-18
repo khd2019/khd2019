@@ -1,7 +1,7 @@
 ![image](https://user-images.githubusercontent.com/6773678/68557263-a049d000-0478-11ea-9d9e-876689ed6b0b.png)
 
 
-# Konyang Health Datatathon 2019
+# Konyang Health Datathon 2019
 
 의료인공지능에 도전해보세요! <br>
 국내최초로 안저이미지, 유방암이미지를 활용해 예측할 수 있는 AI 개발 주인공이 되어보세요. <br>
