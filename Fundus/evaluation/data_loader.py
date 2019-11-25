@@ -4,7 +4,6 @@ import sys
 import time
 import nsml
 from nsml.constants import DATASET_PATH
-from helpers_juhui import image_loader
 import cv2
 
 # 우리가 evaluation 하기 전에 결과를 불러오는 함수
