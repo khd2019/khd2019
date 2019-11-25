@@ -14,6 +14,7 @@ from keras.callbacks import  ModelCheckpoint, ReduceLROnPlateau
 from keras.utils.training_utils import multi_gpu_model
 import keras.backend.tensorflow_backend as K
 import nsml
+from keras.layers import BatchNormalization
 from nsml.constants import DATASET_PATH, GPU_NUM
 
 
@@ -37,31 +38,38 @@ def bind_model(model):
     nsml.bind(save=save, load=load, infer=infer)
 
 
-def data_loader (root_path):
+def data_loader (root_path,label_path):
     t = time.time()
     print('Data loading...')
-    data_path = [] # data path 저장을 위한 변수
-    labels=[] # 테스트 id 순서 기록
+    data_path = {} # 환자 ID 별 data path 저장을 위한 변수
     ## 하위 데이터 path 읽기
     for dir_name,_,_ in os.walk(root_path):
-        try: 
-            data_id = dir_name.split('/')[-1]
-            int(data_id)    
+        try:  pt_id = dir_name.split('/')[-1]
         except: pass
-        else: 
-            data_path.append( dir_name )
-            labels.append(int(data_id[0]))
+        else:
+            try: int(pt_id)
+            except: pass
+            else: data_path[pt_id] = dir_name 
     
-    ## 데이터만 읽기
+    ## 랜덤하게 나열된 환자 ID 읽기           
+    test_ids = []
+    labels = [] # label을 저장하기 위한 list
+    with open (os.path.join(root_path,label_path),'rt')as f:
+        for pt_id in f:
+            pt_id=pt_id.strip()
+            labels.append(int(pt_id[0]))
+            test_ids.append(pt_id)
+    
+    ## 환자 ID에 대한 img 불러오기 
     data = [] # img저장을 위한 list
-    for d_path in data_path:
-        sample = np.load(d_path+'/mammo.npz')['arr_0']
+    for pt_id in test_ids:
+        sample = np.load(data_path[pt_id]+'/mammo.npz')['arr_0']
         data.append(sample)
     data = np.array(data) ## list to numpy
-
+    labels = np.array(labels) ## list to numpy 
     print('Dataset Reading Success \n Reading time',time.time()-t,'sec')
     print('Dataset:',data.shape,'np.array.shape(files, views, width, height)')
-
+    print('Labels:', labels.shape, 'each of which 0~2')
     return data, labels
 
 
@@ -70,16 +78,9 @@ def preprocessing(data):
     # 자유롭게 작성해주시면 됩니다.
     data = np.concatenate([np.concatenate([data[:,0],data[:,1]],axis=1)
                     ,np.concatenate([data[:,2],data[:,3]],axis=1)],axis=2)
-    
-    X=[]
-    for d in data:
-        X.append(cv2.resize(d,(int(d.shape[0]*0.1),int(d.shape[1]*0.1))\
-            ,interpolation=cv2.INTER_AREA))
-
-    X = np.array(X)
+    X = data
     X =  np.expand_dims(X, axis=3)
-    X = X-X.min()/(X.max()-X.min())
-    
+    X = X-X.min()/(X.max()-X.min())    
     print('Preprocessing complete...')
     print('The shape of X changed',X.shape)
     
@@ -88,15 +89,20 @@ def preprocessing(data):
 
 def cnn_basic():
     model = Sequential()
-    model.add(Conv2D(filters=8, kernel_size=(2, 2), activation='relu', padding='same', input_shape=(66,82,1))) ## shape size 정해주기
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.5))
-    model.add(Conv2D(16, (2, 2), activation='relu', padding='same'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.5))
+    model.add(Conv2D(filters=4, kernel_size=(5, 5), activation='relu',strides=2, padding='same', input_shape=(820, 666,1))) ## shape size 정해주기
+    model.add(MaxPooling2D(pool_size=(2, 2), padding='same',strides=2,))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=8, kernel_size=(5, 5), activation='relu', padding='same',strides=2,))
+    model.add(MaxPooling2D(pool_size=(2, 2), padding='same',strides=2,))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=16, kernel_size=(5, 5), activation='relu', padding='same',strides=2,))
+    model.add(MaxPooling2D(pool_size=(2, 2), padding='same',strides=2,))
+    model.add(BatchNormalization())
     model.add(Flatten())
     model.add(Dense(256, activation='relu'))
+    model.add(Dropout(0.5))
     model.add(Dense(num_classes, activation='softmax'))
+    
     return model
 
 
@@ -104,7 +110,7 @@ if __name__ == '__main__':
     args = argparse.ArgumentParser()
 
     # hyperparameters
-    args.add_argument('--epoch', type=int, default=1)
+    args.add_argument('--epoch', type=int, default=5)
     args.add_argument('--batch_size', type=int, default=32)
     args.add_argument('--num_classes', type=int, default=3)
     #args.add_argument('--width', type=int, default=100)
@@ -125,9 +131,9 @@ if __name__ == '__main__':
     #width = config.width
     #height = config.height
     
-    """ Model """
     model = cnn_basic()
-    adam = keras.optimizers.Adam(lr=1e-4, decay=1e-5)
+    model.summary()
+    adam = keras.optimizers.Adam(lr=1e-7, decay=1e-5)
     model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['acc'])
     
     bind_model(model)
@@ -140,29 +146,25 @@ if __name__ == '__main__':
         # train mode 일때, path 설정
         label_path = 'train_label'
         img_path = DATASET_PATH + '/train/'
-        data, labels = data_loader(img_path)
+        data, labels = data_loader(img_path,label_path)
         X = preprocessing(data)
         y = np_utils.to_categorical(labels, 3)
 
-        
         
         """ Callback """
         monitor = 'acc'
         reduce_lr = ReduceLROnPlateau(monitor=monitor, patience=3)
 
         """ Training loop """
-        STEP_SIZE_TRAIN = len(X) // batch_size
         t0 = time.time()
         for epoch in range(nb_epoch):
             t1 = time.time()
             print("### Model Fitting.. ###")
             hist = model.fit(X, y, 
-                             steps_per_epoch=STEP_SIZE_TRAIN, 
-                             #initial_epoch=epoch,
-                             callbacks=[reduce_lr],
-                             shuffle=True)
+                            batch_size=batch_size, 
+                             callbacks=[reduce_lr])
             t2 = time.time()
-            print(hist.history)
+            #print(hist.history)
             print('Training time for one epoch : %.1f' % ((t2 - t1)))
             train_acc = hist.history['acc'][0]
             train_loss = hist.history['loss'][0]
@@ -170,5 +172,4 @@ if __name__ == '__main__':
             nsml.report(summary=True, step=epoch, epoch_total=nb_epoch, loss=train_loss, acc=train_acc)
             nsml.save(epoch)
         print('Total training time : %.1f' % (time.time() - t0))
-        #print(model.predict_classes(X))
 
