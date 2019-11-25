@@ -2,7 +2,7 @@ import numpy as np
 import argparse
 import os
 
-DATASET_PATH = 'data/KYD2019_FUNDUS'
+DATASET_PATH = 'data/KHD2019_FUNDUS'
 
 
 def read_prediction(prediction_file):
