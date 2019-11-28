@@ -37,53 +37,36 @@ def bind_model(model):
 
     nsml.bind(save=save, load=load, infer=infer)
 
-
-def data_loader (root_path,label_path):
+def data_loader (root_path):
     t = time.time()
     print('Data loading...')
-    data_path = {} # 환자 ID 별 data path 저장을 위한 변수
+    data = [] # data path 저장을 위한 변수
+    labels=[] # 테스트 id 순서 기록
     ## 하위 데이터 path 읽기
     for dir_name,_,_ in os.walk(root_path):
-        try:  pt_id = dir_name.split('/')[-1]
+        try: 
+            data_id = dir_name.split('/')[-1]
+            int(data_id)    
         except: pass
-        else:
-            try: int(pt_id)
-            except: pass
-            else: data_path[pt_id] = dir_name 
-    
-    ## 랜덤하게 나열된 환자 ID 읽기           
-    test_ids = []
-    labels = [] # label을 저장하기 위한 list
-    with open (os.path.join(root_path,label_path),'rt')as f:
-        for pt_id in f:
-            pt_id=pt_id.strip()
-            labels.append(int(pt_id[0]))
-            test_ids.append(pt_id)
-    
-    ## 환자 ID에 대한 img 불러오기 
-    data = [] # img저장을 위한 list
-    for pt_id in test_ids:
-        sample = np.load(data_path[pt_id]+'/mammo.npz')['arr_0']
-        data.append(sample)
-    data = np.array(data) ## list to numpy
+        else: 
+            data.append(np.load(dir_name+'/mammo.npz')['arr_0'])            
+            labels.append(int(data_id[0]))
+    data = np.array(data) ## list to numpy 
     labels = np.array(labels) ## list to numpy 
     print('Dataset Reading Success \n Reading time',time.time()-t,'sec')
     print('Dataset:',data.shape,'np.array.shape(files, views, width, height)')
     print('Labels:', labels.shape, 'each of which 0~2')
     return data, labels
 
-
 def preprocessing(data): 
     print('Preprocessing start')
     # 자유롭게 작성해주시면 됩니다.
-    data = np.concatenate([np.concatenate([data[:,0],data[:,1]],axis=1)
+    X = np.concatenate([np.concatenate([data[:,0],data[:,1]],axis=1)
                     ,np.concatenate([data[:,2],data[:,3]],axis=1)],axis=2)
-    X = data
     X =  np.expand_dims(X, axis=3)
     X = X-X.min()/(X.max()-X.min())    
     print('Preprocessing complete...')
     print('The shape of X changed',X.shape)
-    
     return X
 
 
@@ -104,7 +87,6 @@ def cnn_basic():
     model.add(Dense(num_classes, activation='softmax'))
     
     return model
-
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
@@ -144,12 +126,10 @@ if __name__ == '__main__':
     if config.mode == 'train': ### training mode 일때는 여기만 접근
         print('Training Start...')
         # train mode 일때, path 설정
-        label_path = 'train_label'
         img_path = DATASET_PATH + '/train/'
-        data, labels = data_loader(img_path,label_path)
+        data, labels = data_loader(img_path)
         X = preprocessing(data)
         y = np_utils.to_categorical(labels, 3)
-
         
         """ Callback """
         monitor = 'acc'
@@ -158,14 +138,10 @@ if __name__ == '__main__':
         """ Training loop """
         t0 = time.time()
         for epoch in range(nb_epoch):
-            t1 = time.time()
             print("### Model Fitting.. ###")
             hist = model.fit(X, y, 
                             batch_size=batch_size, 
-                             callbacks=[reduce_lr])
-            t2 = time.time()
-            #print(hist.history)
-            print('Training time for one epoch : %.1f' % ((t2 - t1)))
+                             callbacks=[reduce_lr]) 
             train_acc = hist.history['acc'][0]
             train_loss = hist.history['loss'][0]
 
