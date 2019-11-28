@@ -145,7 +145,7 @@ if __name__ == '__main__':
             t1 = time.time()
             print("### Model Fitting.. ###")
             print('epoch = {} / {}'.format(epoch+1, nb_epoch))
-            print('chaeck point = {}'.format(epoch))
+            print('check point = {}'.format(epoch))
 
             # for no augmentation case
             hist = model.fit(X_train, Y_train,
