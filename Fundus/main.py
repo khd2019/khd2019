@@ -85,7 +85,7 @@ if __name__ == '__main__':
     
     learning_rate = 1e-4
 
-    h, w = int(3900//RESIZE), int(3072//RESIZE)
+    h, w = int(3072//RESIZE), int(3900//RESIZE)
     model = cnn_sample(in_shape=(h, w, 3), num_classes=num_classes)
     adam = optimizers.Adam(lr=learning_rate, decay=1e-5)                    # optional optimization
     sgd = optimizers.SGD(lr=learning_rate, momentum=0.9, nesterov=True)
