@@ -49,6 +49,7 @@ def dataset_loader(img_path, rescale, resize_factor):
     ## 이미지 읽기
     p_list = [os.path.join(dirpath, f) for dirpath, dirnames, files in os.walk(img_path) for f in files if all(s in f for s in ['.jpg'])]
     p_list.sort()
+    num_data = len(p_list)
 
     images = []
     labels = []
@@ -61,6 +62,8 @@ def dataset_loader(img_path, rescale, resize_factor):
         # label 데이터 생성
         l = Label2Class(p.split('/')[-2])
         labels.append(l)
+
+        print(i + 1, '/', num_data)
 
     images = np.array(images)
     labels = np.array(labels)
