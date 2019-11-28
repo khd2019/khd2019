@@ -11,7 +11,7 @@ import numpy as np
 
 def image_preprocessing(im, rescale, resize_factor):
     ## 이미지 크기 조정 및 픽셀 범위 재설정
-    h, w, c = 3900, 3072, 3
+    h, w, c = 3072, 3900, 3
     nh, nw = int(h//resize_factor), int(w//resize_factor)
     # print(im.shape)
 
@@ -63,7 +63,7 @@ def dataset_loader(img_path, rescale, resize_factor):
         l = Label2Class(p.split('/')[-2])
         labels.append(l)
 
-        print(i + 1, '/', num_data)
+        print(i + 1, '/', num_data, ' image(s)')
 
     images = np.array(images)
     labels = np.array(labels)
