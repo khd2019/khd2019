@@ -36,7 +36,7 @@ def bind_model(model):
 def data_loader (root_path):
     t = time.time()
     print('Data loading...')
-    data_path = [] # data path 저장을 위한 변수
+    data = [] # data path 저장을 위한 변수
     labels=[] # 테스트 id 순서 기록
     ## 하위 데이터 path 읽기
     for dir_name,_,_ in os.walk(root_path):
@@ -45,19 +45,13 @@ def data_loader (root_path):
             int(data_id)    
         except: pass
         else: 
-            data_path.append( dir_name )
+            data.append(np.load(dir_name+'/mammo.npz')['arr_0'])            
             labels.append(int(data_id[0]))
-    
-    ## 데이터만 읽기
-    data = [] # img저장을 위한 list
-    for d_path in data_path:
-        sample = np.load(d_path+'/mammo.npz')['arr_0']
-        data.append(sample)
-    data = np.array(data) ## list to numpy
-
+    data = np.array(data) ## list to numpy 
+    labels = np.array(labels) ## list to numpy 
     print('Dataset Reading Success \n Reading time',time.time()-t,'sec')
     print('Dataset:',data.shape,'np.array.shape(files, views, width, height)')
-
+    print('Labels:', labels.shape, 'each of which 0~2')
     return data, labels
 
 from torch.utils.data import Dataset, DataLoader 
@@ -154,10 +148,9 @@ if __name__ == '__main__':
 
     if config.mode == 'train': ### training mode 일때는 여기만 접근
         print('Training Start...')
-        # train mode 일때, path 설정
-        label_path = 'train_label'
+        # train mode 일때, path 설정 
         img_path = DATASET_PATH + '/train/'
-        data, y = data_loader(img_path,label_path)
+        data, y = data_loader(img_path)
         X = preprocessing(data)
 
         # Data loader
