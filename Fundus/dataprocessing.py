@@ -41,8 +41,8 @@ def dataset_loader(img_path, rescale, resize_factor):
     if not ((resize_factor == 1.) and (rescale == False)):
         print('Image preprocessing...')
     if not resize_factor == 1.:
-        print('Image size is 3900*3072*3')
-        print('Resizing the image into {}*{}*{}...'.format(int(3900//resize_factor), int(3072//resize_factor), 3))
+        print('Image size is 3072*3900*3')
+        print('Resizing the image into {}*{}*{}...'.format(int(3072//resize_factor), int(3900//resize_factor), 3))
     if not rescale == False:
         print('Rescaling range of 0-255 to 0-1...\n')
 
