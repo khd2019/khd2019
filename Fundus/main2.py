@@ -23,7 +23,7 @@ import nsml
 from nsml.constants import DATASET_PATH, GPU_NUM
 
 from model import cnn_sample
-from dataprocessing import image_preprocessing, dataset_loader
+from dataprocessing2 import image_preprocessing, dataset_loader
 
 
 ## setting values of preprocessing parameters
