@@ -156,7 +156,7 @@ if __name__ == '__main__':
             for epoch in range(nb_epoch*10):
                 t1 = time.time()
                 print("### Model Fitting.. ###")
-                print('epoch = {} / {}'.format(nb_epoch))
+                print('epoch = {} / {}'.format(epoch, nb_epoch))
                 print('chaeck point = {}'.format(epoch))
 
                 # for no augmentation case
