@@ -53,9 +53,9 @@ def evaluate(num_classes, prediction, ground_truth): ## 이부분만 평가 기�
     class_sens = []
     class_spec = []
 
-    #for i in range(num_classes):
-    #    class_sens.append(sensitivity(prediction, ground_truth, str(i)))
-    #    class_spec.append(specificity(prediction, ground_truth, str(i)))
+    for i in range(num_classes):
+        class_sens.append(sensitivity(prediction, ground_truth, str(i)))
+        class_spec.append(specificity(prediction, ground_truth, str(i)))
 
     ttl_sens = sum(class_sens) / len(class_sens)
     ttl_spec = sum(class_spec) / len(class_spec)
