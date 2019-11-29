@@ -106,6 +106,8 @@ if __name__ == '__main__':
         img_path = DATASET_PATH + '/train'
 
         # dataset_loader 함수 최적화 필요 
+
+        tmp_epoch = 1
         for i in range(10):
 
             images, labels = dataset_loader(img_path, idx = i, resize_factor=RESIZE, rescale=RESCALE)
@@ -151,10 +153,10 @@ if __name__ == '__main__':
             X_val = X[tmp:]
             Y_val = Y[tmp:]
 
-            for epoch in range(nb_epoch):
+            for epoch in range(nb_epoch*10):
                 t1 = time.time()
                 print("### Model Fitting.. ###")
-                print('epoch = {} / {}'.format(epoch+1, nb_epoch))
+                print('epoch = {} / {}'.format(, nb_epoch))
                 print('chaeck point = {}'.format(epoch))
 
                 # for no augmentation case
@@ -174,11 +176,9 @@ if __name__ == '__main__':
                 val_loss = hist.history['val_loss'][0]
 
                 nsml.report(summary=True, step=epoch, epoch_total=nb_epoch, loss=train_loss, acc=train_acc, val_loss=val_loss, val_acc=val_acc)
-                nsml.save(epoch)
+                nsml.save(tmp_epoch)
+                tmp_epoch += 1
             print('Total training time : %.1f' % (time.time() - t0))
             # print(model.predict_classes(X))
             del X
             del Y
-
-
-
