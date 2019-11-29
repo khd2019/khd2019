@@ -3,6 +3,7 @@ import argparse
 import os
 
 DATASET_PATH = 'data/KHD2019_FUNDUS'
+# KHD2019_FUNDUS
 
 
 def read_prediction(prediction_file):
@@ -36,27 +37,35 @@ def specificity(y_pred, y_gt, target):
     return spec
 
 
+def accuracy(y_pred, y_gt):
+    pn = 0
+    tptn = 0
+    for i, pred in enumerate(y_pred):
+        pn += 1
+        if y_gt[i][-1] == pred:
+            tptn += 1
+    acc = tptn / pn
+    return acc
+
 def evaluate(num_classes, prediction, ground_truth): ## 이부분만 평가 기준에 맞게 변경할 것
 
     # performance
-    class_acc = []
     class_sens = []
     class_spec = []
 
-    for i in range(num_classes):
-        class_sens.append(sensitivity(prediction, ground_truth, str(i)))
-        class_spec.append(specificity(prediction, ground_truth, str(i)))
-        class_acc.append((class_sens[i] + class_spec[i]) / 2)
+    #for i in range(num_classes):
+    #    class_sens.append(sensitivity(prediction, ground_truth, str(i)))
+    #    class_spec.append(specificity(prediction, ground_truth, str(i)))
 
     ttl_sens = sum(class_sens) / len(class_sens)
     ttl_spec = sum(class_spec) / len(class_spec)
-    ttl_acc = sum(class_acc) / len(class_acc)
+    ttl_acc = accuracy(prediction, ground_truth)
 
-    return class_acc, class_sens, class_spec, ttl_acc, ttl_sens, ttl_spec
+    return class_sens, class_spec, ttl_acc, ttl_sens, ttl_spec
 
 
 def evaluation_metrics(num_classes, prediction_file, ground_truth_file):
-    prediction = read_prediction(prediction_file) 
+    prediction = read_prediction(prediction_file)
     ground_truth = read_ground_truth(ground_truth_file)
     return evaluate(num_classes, prediction, ground_truth)
 
@@ -66,9 +75,12 @@ if __name__ == '__main__':
     config = args.parse_args()
     num_classes = 4
     classes = ['Normal', 'AMD', 'RVO', 'DMR']
+    ### test_label 에 대한 접근은 반드시 evaluation.py에서만 할 것!! **가장 중요** 다른 py 파일에서 읽으면 오류남!!
 
+    # test_label_path = 'data/khdmammo_e/test/test_label' ## full path를 써줄것!! data/[데이터 이름]/test/test_label
     test_path = os.path.join(DATASET_PATH, 'test', 'test_label')
-    class_acc, class_sens, class_spec, ttl_acc, ttl_sens, ttl_spec = evaluation_metrics(num_classes, config.prediction, test_path)
+    class_sens, class_spec, ttl_acc, ttl_sens, ttl_spec = evaluation_metrics(num_classes, config.prediction, test_path)
+
 
     #for i in range(num_classes):
     #    print(' < Class {} >\nAccuracy= {}\n Sensitivity = {}\n Specificity = {}\n'.format(classes[i], class_acc[i], class_sens[i], class_spec[i]))
