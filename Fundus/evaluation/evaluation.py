@@ -42,7 +42,7 @@ def accuracy(y_pred, y_gt):
     tptn = 0
     for i, pred in enumerate(y_pred):
         pn += 1
-        if y_gt[i][-1] == pred:
+        if y_gt[i][-1] == pred[-1]:
             tptn += 1
     acc = tptn / pn
     return acc
